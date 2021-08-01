@@ -6,11 +6,25 @@
  const mongoose=require("mongoose");
  const bcrypt = require("bcryptjs") ;
 const Register = require('./models/register');
-app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
+//app.use(express.json());
+//app.use(express.urlencoded({extended:false}));
 
 //const static_path = path.join(__dirname);
 //app.use(express.static())
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------
+// for Error handling
+
+//app.use((req, res) =>{
+//  res.status(404).json({
+  //  error: 'Bad Request'
+//  })
+//})
 
 //-------------------------------------------------------------------------------------------------------------------------------------------
 // for GET Employee single data by pass Employee ID
@@ -85,6 +99,49 @@ app.post("/registers" , async (req , res) =>{
     res.status(400).send(e);
   }
 })
+
+//-------------------------------------------------------------------------------------------------------------------------------------------
+// for Delete Employee single data by pass Employee ID
+app.delete("/registers/:id" , async (req , res) =>{
+//  res.send("hello")
+try {
+   const result = await  Register.deleteOne({id: req.params.id});
+   res.status(200).json({
+     message:'Deleted succefully'
+   });
+} catch (err) {
+  res.status(500).json({
+    error: err
+  })
+}
+
+})
+
+//-------------------------------------------------------------------------------------------------------------------------------------------
+// for PUT Employee single data by pass Employee ID
+app.put("/registers/:id" , (req , res) =>{
+//  res.send("hello")
+  Register.findOneAndUpdate({id: req.params.id} , {
+    $set:{
+      id : req.body.id,
+      name : req.body.name,
+      email : req.body.email,
+      phone : req.body.phone
+    }
+  })
+  .then( result => {
+    res.status(200).json({
+      message:'Updated succefully'
+    });
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({
+      error: err
+    })
+  })
+})
+
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 // for listen port
